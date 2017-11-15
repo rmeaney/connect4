@@ -1,0 +1,320 @@
+<html>
+	<head>
+		<title>Connect 4 attempt</title>
+		<link rel="stylesheet" type="text/css" href="https://meyerweb.com/eric/tools/css/reset/reset.css">
+		<style>
+			#onTheBorder{
+				margin:0 auto 0 auto;
+				width:550px;
+			}
+			h1{
+				font-size:30pt;
+				font-family:arial;
+				text-align:center;
+				font-weight:bold;
+			}
+			.squareBorder{
+				width:65px;
+				height:65px;
+				border:1px solid black;
+				display:block;
+				float:left;
+				position:relative;
+			}
+			.circlePlace{
+				width:60px;
+				height:60px;
+				border-radius:50px;
+				border:1px solid black;
+				margin:auto;
+			}
+			.clearFloat{
+				clear:left;
+			}
+
+			.selectionBoxStyle{
+				width:65px;
+				height:65px;
+				border:1px solid transparent;
+				display:block;
+				float:left;
+				position:relative;
+			}
+			.selectorEmpty{
+				width: 0; 
+				height: 0; 
+				border-left: 20px solid transparent;
+				border-right: 20px solid transparent;
+				border-top: 40px solid Transparent;
+				margin: 0 auto 0 auto;
+			}
+			.selectorTriangle{
+				width: 0; 
+				height: 0; 
+				border-left: 20px solid transparent;
+				border-right: 20px solid transparent;
+				  
+				border-top: 40px solid #f00;
+				margin: 0 auto 0 auto;
+			}
+			.selectorCircleOverride{
+				width:60px;
+				height:60px;
+				border-radius:50px;
+				border:1px solid black;
+				margin:auto;
+				background-color:#f00;
+			}
+			.playerRedTile{
+				width:60px;
+				height:60px;
+				border-radius:50px;
+				border:1px solid black;
+				margin:auto;
+				background-color:#f00;
+			}
+			.playerBlueTile{
+				width:60px;
+				height:60px;
+				border-radius:50px;
+				border:1px solid black;
+				margin:auto;
+				background-color:#0000FF;
+			}
+			#scoreBox{
+				clear:left;
+				border:1px solid black;
+				width:467px;
+				height:20px;
+			}
+			.p1Text{
+				color:red;
+				font-size:14px;
+				font-weight:bold;
+				font-family: arial;
+				
+			}
+			.p2Text{
+				color:blue;
+				font-size:14px;
+				font-weight:bold;
+				font-family: arial;
+			}
+			#displayCurrentPlayer{
+				font-size:16px;
+				font-family: arial;
+				font-weight:bold;
+				font-style: italic;
+				margin-left:65px;
+				text-align:center;
+			}
+			.leftText{
+				float:left;
+				margin-left:10px;
+				margin-top:3px;
+			}
+			.rightText{
+				float:right;
+				margin-right:10px;
+				margin-top:3px;
+			}
+		</style>
+	</head>
+	<body>
+		<div id = "onTheBorder">
+			<h1>Connect 4</h1>
+			<br/>
+			<div id = 'selectorStorage'></div>
+			<br />
+			<div id = 'boardBox'></div>
+			<div id = 'scoreBox'>
+				<span class='leftText'><span class = 'p1Text'>Player 1 Score: <span id ='p1Score' class ='p1Text clearText'></span></span></span>
+				<span id = 'displayCurrentPlayer'>currentPlayer</span>
+				<span class ='rightText'><span class = 'p2Text'>Player 2 Score: <span id ='p2Score' class ='p2Text clearText'></span></span></span>
+			</div>
+		</div>
+
+		<script>
+		var boardBox = document.getElementById('boardBox');
+		var selectorPlacement = document.getElementById('selectorStorage');
+		var selector;
+		var currentPlayer;
+		var displayClass;
+		init();
+		function init(){
+			buildBoard();
+			buildSelectionBase();
+			startSelection();
+			currentPlayer = 'red';
+			displayClass = 'playerRedTile';
+		}
+		function buildBoard(){
+			//we need to create a board with 7 columns and rows.
+			for(i=0; i < 42; i++){
+				var squareBox = document.createElement('SPAN');
+				var circleBox = document.createElement('DIV');
+				squareBox.id ='squareId_' + i;
+				squareBox.className = 'squareBorder';
+				
+				circleBox.id = 'circleId_' +i;
+				circleBox.className = 'circlePlace';
+				circleBox.setAttribute('data-holding','empty');
+				squareBox.appendChild(circleBox);
+				boardBox.appendChild(squareBox);
+
+				if(i === 6 || i === 13 || i === 20 || i === 27 || i === 34 ){
+			    	boardBox.innerHTML += '<br /><br />';
+			    }
+			    if(i === 0 || i === 7 || i === 14 || i === 21 || i === 28 || i === 35){
+			    	squareBox.className +=' clearFloat';
+			    }
+			}
+		}
+		function buildSelectionBase(){
+			for(i=0; i < 7; i++){
+				var selectionBox = document.createElement('SPAN');
+				var selector = document.createElement('DIV');
+				selectionBox.id ='selectionBoxId_'+i;
+				selectionBox.className ='selectionBoxStyle';
+				selector.id  ='selectorId_' + i;
+				selector.className = 'selectorEmpty';
+				selectionBox.appendChild(selector);
+				selectorPlacement.appendChild(selectionBox);
+			}
+		}
+		//lets set the start selection
+		function startSelection(){
+			selector = document.getElementById('selectorId_'+ 0);
+			selectorNum = 0;
+			//selector.classList.remove('selectorEmpty');
+
+			selector.className = 'selectorTriangle';
+			document.getElementById('displayCurrentPlayer').style.color ='red';
+				document.getElementById('displayCurrentPlayer').innerHTML ='Player 1\'s turn';
+		}
+		function newSelection(){
+			selector = document.getElementById('selectorId_'+ selectorNum);
+			//selectorNum = 0;
+			//selector.classList.remove('selectorEmpty');
+
+			selector.className = 'selectorTriangle';
+		}
+		//set the controls for the selector
+		document.onkeydown = function(event){
+			var keyCode = event.keyCode;
+			if(keyCode === 39){
+				selector.className = 'selectorEmpty';
+				selectorNum++;
+				if(selectorNum > 6){
+					selectorNum =0;
+				}
+				selector = document.getElementById('selectorId_' + selectorNum);
+				selector.className = 'selectorTriangle';
+
+			}else if(keyCode === 37){
+				selector.className = 'selectorEmpty';
+				selectorNum--;
+				if(selectorNum < 0){
+					selectorNum =6;
+				}
+				selector = document.getElementById('selectorId_' + selectorNum);
+				selector.className = 'selectorTriangle';
+
+			}else if (keyCode ===32){
+				selector.className = 'selectorCircleOverride';
+				//setTimeout(function(){
+					selector.className = 'selectorEmpty';
+					dropCheck();
+					switchPlayer();
+				//},300);
+				
+			}
+		}
+		function dropCheck(){
+			var checkCircle = document.getElementById('circleId_'+ selectorNum);
+			var selectorNumPrev = selectorNum;
+			var selectorNumNext = selectorNumPrev;
+			
+			//console.log(checkCircle + 'first');
+			
+
+			if(checkCircle.getAttribute('data-holding') == 'empty'){
+				
+				document.getElementById('circleId_' +selectorNumPrev).className =displayClass;
+				checkCircle.setAttribute('data-holding', currentPlayer);
+
+				for(i=0; i<5; i++){
+						//setTimeout(function(){
+						//	return function(){
+						selectorNumNext +=7;
+						//console.log(document.getElementById('circleId_' + selectorNumNext));
+						
+						if(document.getElementById('circleId_' + selectorNumNext).getAttribute('data-holding') == 'empty'){
+							
+							document.getElementById('circleId_' + selectorNumNext).setAttribute('data-holding',currentPlayer);
+							document.getElementById('circleId_' + selectorNumNext).className = (displayClass);
+							document.getElementById('circleId_' + selectorNumPrev).setAttribute('data-holding','empty');
+							document.getElementById('circleId_' + selectorNumPrev).className =('circlePlace');
+							selectorNumPrev = selectorNumNext;
+						}
+					//}
+						//}(i), 100*i)
+					
+				}
+				//order of attributes: startIndex, endIndex, increment,startIndexAdd, endIndexAdd,jStart,jEnd
+				//checkhorrizontals
+				checkForVictory(0,6,1,7,7,0,6);
+				//checkVerticals
+				checkForVictory(0,35,7,1,1,0,7);
+				newSelection();
+				
+				
+			}
+		}
+		function switchPlayer(){
+
+			if(currentPlayer === 'red'){
+				currentPlayer ='blue';
+				displayClass = 'playerBlueTile';
+				document.getElementById('displayCurrentPlayer').style.color ='blue';
+				document.getElementById('displayCurrentPlayer').innerHTML ='Player 2\'s turn';
+			}else{
+				currentPlayer = 'red';
+				displayClass = 'playerRedTile';
+				document.getElementById('displayCurrentPlayer').style.color ='red';
+				document.getElementById('displayCurrentPlayer').innerHTML ='Player 1\'s turn';
+			}
+		}
+		function checkForVictory(startIndex, endIndex, increment,startIndexAdd, endIndexAdd,jStart,jEnd){
+			var currentPlayerScore = 0;
+			var checkIndex = 0;
+			var checkSelectorTile = document.getElementById('circleId_0');
+
+			for(j = jStart; j < jEnd; j++){
+				for(i = startIndex; i <= endIndex; i += increment){
+					checkIndex = i;
+					//checkSelectorTile.id ='circleId_' + checkIndex;
+					//checkSelectorTile.className = 'playerBlueTile';
+					var checkTileStatus = document.getElementById('circleId_' + i).getAttribute('data-holding');
+					console.log(i);
+					if(checkTileStatus === currentPlayer){
+						currentPlayerScore++
+					}else{
+						currentPlayerScore = 0;
+					}
+					if(currentPlayerScore === 4){
+						alert(currentPlayer + ' Wins!');
+						break;
+					}
+
+
+				}
+				startIndex += startIndexAdd;
+					endIndex += endIndexAdd;
+					currentPlayerScore =0;
+					//alert(checkIndex);
+			}
+		}
+		</script>
+	</body>
+</html>
